@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GRAFICAS DE CONSUMO Y PREDICCIÓN POR INDUSTRIA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .plot {
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        h1 {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        h2 {
+            color: #333;
+        }
+        .totals, .client-totals {
+            margin: 20px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>GRAFICAS DE CONSUMO Y PREDICCIÓN POR INDUSTRIA</h1>
+    <div class="container">
+        {% for cliente_info in clientes_info %}
+            <div class="client-totals">
+                <h2>Cliente {{ cliente_info.cliente }}</h2>
+                <p>Total Energía Activa (kWh): {{ cliente_info.total_kWhD }}</p>
+                <p>Total Energía Reactiva (kVarh): {{ cliente_info.total_kVarhD }}</p>
+                <p>Porcentaje de Energía Reactiva: {{ cliente_info.porcentaje }}%</p>
+                <p>¿La energía reactiva supera el 50% de la energía activa? {{ 'Sí' if cliente_info.supera_umbral else 'No' }}</p>
+            </div>
+        {% endfor %}
+        
+        {% for plot in plots %}
+            <div class="plot">
+                <h2>Cliente {{ plot.client }} - Uso de Energía {{ plot.variable }}</h2>
+                <img src="{{ url_for('static', filename=plot.plot_path) }}" alt="Plot for client {{ plot.client }} - {{ plot.variable }}">
+            </div>
+        {% endfor %}
+        {% for plot_path in plot_paths %}
+            <div class="plot">
+                <h2>{{ 'Consumo de kVarhD por cliente' if loop.index == 1 else 'Consumo de kWhD por cliente' if loop.index == 2 else 'Distribución de Predicción de Energía kVarhD por Cliente' if loop.index == 3 else 'Distribución de Predicción de Energía kWhD por Cliente' }}</h2>
+                <img src="{{ url_for('static', filename=plot_path) }}" alt="Pie chart">
+            </div>
+        {% endfor %}
+        {% for cliente, bar_plot_path in bar_plot_paths.items() %}
+            <div class="client-totals">
+                <h2>Resultados para Cliente {{ cliente }}</h2>
+                <div class="plot">
+                    <img src="{{ url_for('static', filename=bar_plot_path) }}" alt="Bar plot comparing active and reactive energy">
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
